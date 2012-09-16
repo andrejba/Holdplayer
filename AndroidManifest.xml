@@ -6,6 +6,8 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
+    
+	<uses-permission android:name="android.permission.INTERNET" /> 
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -19,6 +21,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
+            <intent-filter>
+		   <action android:name="android.intent.action.SEND" />
+		   <category android:name="android.intent.category.DEFAULT" />
+		   <data android:host="www.youtube.com" android:mimeType="text/*" />
+		</intent-filter>
+		
         </activity>
     </application>
 

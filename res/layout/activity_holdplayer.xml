@@ -4,11 +4,21 @@
     android:layout_height="match_parent" >
 
     <TextView
+        android:id="@+id/txMain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="@string/hello_world"
         tools:context=".Holdplayer" />
+    
+        <VideoView
+        android:id="@+id/VideoPlayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txMain"
+        android:layout_centerHorizontal="false"
+        android:layout_centerInParent="false"
+        android:layout_centerVertical="false" />
 
 </RelativeLayout>

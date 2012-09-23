@@ -54,6 +54,7 @@ public class Holdplayer extends Activity {
 		super.onResume();
 		
 		progressBar = (ProgressBar) findViewById(R.id.Progressbar);
+		progressBar.setVisibility(View.GONE);
 		
 		Intent intent = getIntent();
 		

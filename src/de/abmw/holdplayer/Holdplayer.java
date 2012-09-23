@@ -46,15 +46,18 @@ public class Holdplayer extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_holdplayer);
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
-		progressBar = (ProgressBar)findViewById(R.id.Progressbar);
+		progressBar = (ProgressBar) findViewById(R.id.Progressbar);
 		
-		Bundle extras = getIntent().getExtras();
+		Intent intent = getIntent();
+		
+		Bundle extras = intent.getExtras();
 		
 		if (extras != null) {
 			VideoURL = "";

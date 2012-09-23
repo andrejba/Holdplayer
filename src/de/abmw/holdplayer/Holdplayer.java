@@ -18,6 +18,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,36 +29,45 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 public class Holdplayer extends Activity {
 
 	private String YoutubeServiceUrl = "http://gdata.youtube.com/feeds/api/videos/";
+	private int VideoPosition = 0;
 	private String VideoURL = "";
-
+	private ProgressBar progressBar;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_holdplayer);
-
-		Bundle extras = getIntent().getExtras();
-
-		if (extras != null) {
-			ParseVideoIDFromUrl(extras.getString(Intent.EXTRA_TEXT));
-		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
-        SharedPreferences prefs = getPreferences(0); 
-        VideoURL = prefs.getString("VideoURL", "");
-        
-        if (VideoURL.length() > 0) {
-        	PlayVideo();
+		progressBar = (ProgressBar)findViewById(R.id.Progressbar);
+		
+		Bundle extras = getIntent().getExtras();
+		
+		if (extras != null) {
+			VideoURL = "";
+			VideoPosition = 0;
+			ParseVideoIDFromUrl(extras.getString(Intent.EXTRA_TEXT));
+		} else {
+	        SharedPreferences prefs = getPreferences(0); 
+	        VideoURL = prefs.getString("VideoURL", "");
+	        VideoPosition = prefs.getInt("VideoPosition", 0);
+	        
+	        if (VideoURL.length() > 0) {
+        		PlayVideo();
+	        }
         }
 	}
 	
@@ -63,8 +75,14 @@ public class Holdplayer extends Activity {
 	protected void onPause() {
 		super.onPause();
 		
+		VideoPosition = 0;
+		
+        VideoView vv = (VideoView) findViewById(R.id.VideoPlayer);
+        VideoPosition =  vv.getCurrentPosition();
+		
         SharedPreferences.Editor editor = getPreferences(0).edit();
         editor.putString("VideoURL", VideoURL);
+        editor.putInt("VideoPosition", VideoPosition);
         editor.commit();
 	}
 	
@@ -98,10 +116,32 @@ public class Holdplayer extends Activity {
 
 	private void PlayVideo() {
 		if (VideoURL.length() > 0) {
-			VideoView vv = (VideoView) findViewById(R.id.VideoPlayer);
+			progressBar.setVisibility(View.VISIBLE);
+			final VideoView vv = (VideoView) findViewById(R.id.VideoPlayer);
 			vv.setVideoURI(Uri.parse(VideoURL));
-			vv.setMediaController(new MediaController(getApplicationContext()));
+			MediaController mc = new MediaController(this);
+			vv.setMediaController(mc);
 			vv.requestFocus();
+			vv.setOnPreparedListener(new OnPreparedListener() {
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					mp.setOnSeekCompleteListener(new OnSeekCompleteListener() {
+						@Override
+						public void onSeekComplete(MediaPlayer mp) {
+							mp.start();
+							progressBar.setVisibility(View.GONE);
+						}
+					});
+					if (VideoPosition > 0 )  {
+						mp.start();
+						mp.seekTo(VideoPosition);
+						mp.pause();
+					} else {
+						mp.start();
+						progressBar.setVisibility(View.GONE);
+					}
+				}
+			});
 			vv.start();
 		}
 	}
@@ -179,6 +219,7 @@ public class Holdplayer extends Activity {
 
 		protected void onPostExecute(String result) {
 			VideoURL = result;
+			VideoPosition = 0;
 			PlayVideo();
 		}
 	}
